@@ -1,0 +1,11 @@
+# IntelliJ
+.idea/
+*.iml
+
+.bsp
+
+# SBT
+target/
+
+# Misc
+.java-version
