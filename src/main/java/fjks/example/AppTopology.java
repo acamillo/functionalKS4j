@@ -6,7 +6,7 @@ import fjks.kafka.streams.topology.StreamBuilder;
 import static fjks.kafka.streams.topology.KStreamSdk.*;
 
 //public class AppTopology implements KafkaStreamsApp, Syntax {
-public class AppTopology {
+public final class AppTopology {
 
     private final static StreamBuilder<Configuration, Void> auditDTopology = compose(
             Sources.auditD.andThen(stream()).map(ks -> ks.filter((k, v) -> !v.isEmpty())),
@@ -44,7 +44,7 @@ public class AppTopology {
         );
     }
 
-    public final static StreamBuilder<Configuration, Void> instance = combine(
+    public final static StreamBuilder<Configuration, Void> topology = combine2(
                 auditDTopology,
                 example2(Sources.auditD, Sinks.detection),
                 example3()

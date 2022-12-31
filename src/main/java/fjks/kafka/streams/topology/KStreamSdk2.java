@@ -5,27 +5,29 @@ import org.apache.kafka.streams.kstream.KStream;
 import java.util.Arrays;
 import java.util.function.Function;
 
-public final class KStreamSdk {
+public interface KStreamSdk2 {
 
     /**
      * Terminal operation. Closes a StreamBuilder pipeline with a 'sink' operation to the specified safe topic
-     * @param sb the input StreamBuilder pipeline
-     * @return a function whose evaluation terminates the pipeline with a 'sink'
+     *
+     * @param sb    the input StreamBuilder pipeline
      * @param <CFG>
      * @param <K>
      * @param <V>
+     * @return a function whose evaluation terminates the pipeline with a 'sink'
      */
-    public static <CFG, K,V> Function<KStream<K,V>, StreamBuilder<CFG, Void>> sinkTo(StreamBuilder<CFG, SafeTopic<K,V>> sb) {
+    default <CFG, K, V> Function<KStream<K, V>, StreamBuilder<CFG, Void>> sinkTo(StreamBuilder<CFG, SafeTopic<K, V>> sb) {
         return kStream -> sb.andThen(sink(kStream));
     }
-    public static <K, V> StreamBuilder<SafeTopic<K, V>, KStream<K, V>> stream() {
+
+    public default <K, V> StreamBuilder<SafeTopic<K, V>, KStream<K, V>> stream() {
         return StreamBuilder.<SafeTopic<K, V>>environment().flatMap(topic ->
                 StreamBuilder.<SafeTopic<K, V>>get()
                         .map(sb -> sb.stream(topic.topicName, topic.asConsumed())));
     }
 
 
-    public static <K, V> StreamBuilder<SafeTopic<K, V>, Void> sink(final KStream<K, V> kStream) {
+    default <K, V> StreamBuilder<SafeTopic<K, V>, Void> sink(final KStream<K, V> kStream) {
         return StreamBuilder.<SafeTopic<K, V>>environment().map(topic -> {
             kStream.to(topic.topicName, topic.asProduced());
             return null;
@@ -39,7 +41,7 @@ public final class KStreamSdk {
      * @param gen  the stream generator
      * @param sink a terminal operation
      */
-    public static <CFG, K0, V0> StreamBuilder<CFG, Void> compose(
+    default <CFG, K0, V0> StreamBuilder<CFG, Void> compose(
             final StreamBuilder<CFG, KStream<K0, V0>> gen,
             final Function<KStream<K0, V0>, StreamBuilder<CFG, Void>> sink
     ) {
@@ -54,7 +56,7 @@ public final class KStreamSdk {
      * @param sb1  a dependant stream computation
      * @param sink a terminal operation
      */
-    public static <CFG, K0, V0, K1, V1> StreamBuilder<CFG, Void> compose(
+    default <CFG, K0, V0, K1, V1> StreamBuilder<CFG, Void> compose(
             final StreamBuilder<CFG, KStream<K0, V0>> gen,
             final Function<KStream<K0, V0>, StreamBuilder<CFG, KStream<K1, V1>>> sb1,
             final Function<KStream<K1, V1>, StreamBuilder<CFG, Void>> sink
@@ -71,7 +73,7 @@ public final class KStreamSdk {
      * @param sb2  a dependant stream computation (sb1 -> sb2)
      * @param sink a terminal operation  (sb2 -> sink)
      */
-    public static <CFG, K0, V0, K1, V1, K2, V2> StreamBuilder<CFG, Void> compose(
+    default <CFG, K0, V0, K1, V1, K2, V2> StreamBuilder<CFG, Void> compose(
             final StreamBuilder<CFG, KStream<K0, V0>> gen,
             final Function<KStream<K0, V0>, StreamBuilder<CFG, KStream<K1, V1>>> sb1,
             final Function<KStream<K1, V1>, StreamBuilder<CFG, KStream<K2, V2>>> sb2,
@@ -86,16 +88,14 @@ public final class KStreamSdk {
      * @param topologies
      * @return
      */
-    @SafeVarargs
-    public static <CFG> StreamBuilder<CFG, Void> combine(final StreamBuilder<CFG, Void>... topologies) {
+    default <CFG> StreamBuilder<CFG, Void> combine(final StreamBuilder<CFG, Void>... topologies) {
         return Arrays.stream(topologies)
                 .reduce((acc, elem) -> acc.flatMap($ -> elem))
                 .orElseThrow(() -> new IllegalArgumentException("combine requires a minimum of two elements"));
     }
 
-    @SafeVarargs
-    public static <CFG> StreamBuilder<CFG, Void> combine2(final StreamBuilder<CFG, Void> head,
-                                                          final StreamBuilder<CFG, Void>... tail) {
+    default <CFG> StreamBuilder<CFG, Void> combine2(final StreamBuilder<CFG, Void> head,
+                                                    final StreamBuilder<CFG, Void>... tail) {
         return Arrays.stream(tail).reduce(head, (acc, elem) -> acc.flatMap($ -> elem));
     }
 }
