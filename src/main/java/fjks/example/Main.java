@@ -4,7 +4,7 @@ import org.apache.kafka.streams.StreamsBuilder;
 
 public class Main {
     public static void main(String[] args) {
-        Configuration cfg = new Configuration("auditd", "diags");
+        Configuration cfg = new Configuration("firstTopic", "2ndTopic", "diags");
         StreamsBuilder streamsBuilder = null;
 
 //        var sb = new AppTopology(cfg, streamsBuilder).instance();

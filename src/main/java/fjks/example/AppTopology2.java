@@ -7,7 +7,7 @@ import fjks.kafka.streams.topology.StreamBuilder;
 public final class AppTopology2 implements KStreamSdk2 {
 
     private final StreamBuilder<Configuration, Void> auditDTopology = compose(
-            Sources.auditD.andThen(stream()).map(ks -> ks.filter((k, v) -> !v.isEmpty())),
+            Sources.topic0.andThen(stream()).map(ks -> ks.filter((k, v) -> !v.isEmpty())),
             sinkTo(Sinks.detection)
     );
 
@@ -25,14 +25,14 @@ public final class AppTopology2 implements KStreamSdk2 {
     }
 
     private StreamBuilder<Configuration, Void> example3() {
-        return Sources.auditD.andThen(stream())
+        return Sources.topic0.andThen(stream())
                 .map(ks -> ks.filter((k, v) -> !v.isEmpty()))
                 .flatMap(ks -> Sinks.detection.andThen(sink(ks)));
     }
 
     public final StreamBuilder<Configuration, Void> topology = combine(
             auditDTopology,
-            example2(Sources.auditD, Sinks.detection),
+            example2(Sources.topic0, Sinks.detection),
             example3()
     );
 
