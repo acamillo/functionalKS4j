@@ -6,5 +6,5 @@ import org.apache.kafka.common.serialization.Serdes;
 
 public class Sinks {
     public final static StreamBuilder<Configuration, SafeTopic<String, String>> detection =
-            SafeTopic.build(c -> c.detectionTopicName, Serdes.String(), Serdes.String());
+            SafeTopic.of(c -> c.detectionTopicName, Serdes.String(), Serdes.String());
 }
