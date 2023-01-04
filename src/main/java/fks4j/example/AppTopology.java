@@ -1,15 +1,15 @@
-package fjks.example;
+package fks4j.example;
 
-import fjks.kafka.streams.topology.SafeTopic;
-import fjks.kafka.streams.topology.StreamBuilder;
+import fks4j.kafka.streams.topology.SafeTopic;
+import fks4j.kafka.streams.topology.StreamBuilder;
 import org.apache.kafka.streams.kstream.KStream;
 
-import static fjks.kafka.streams.topology.KStreamSdk.*;
+import static fks4j.kafka.streams.topology.KStreamSdk.*;
 
 //public class AppTopology implements KafkaStreamsApp, Syntax {
 public final class AppTopology {
 
-    private final static StreamBuilder<Configuration, Void> auditDTopology = compose(
+    private final static StreamBuilder<Configuration, Void> programOne = compose(
             Sources.topic0.andThen(stream()).map(ks -> ks.filter((k, v) -> !v.isEmpty())),
             sinkTo(Sinks.detection)
 //            ks -> Sinks.detection.andThen(sinkTo(ks))
@@ -48,10 +48,8 @@ public final class AppTopology {
     private StreamBuilder<Configuration, KStream<String, String>>
     doJoin(KStream<String, String> ks0, KStream<String, String> ks1) {
 
-        return Sources.mustBeMaterializer.andThen(stream())
-                .map(mat ->
-                        ks0.join(ks1, (v0, v1) -> v0 + v1, null)
-                );
+        return Windows.topic0_1Window.map(joinWindow ->
+                ks0.join(ks1, (v0, v1) -> v0 + v1, joinWindow));
     }
 
     private static StreamBuilder<Configuration, Void> joinTwoSafeTopics(
@@ -66,17 +64,9 @@ public final class AppTopology {
     }
 
     public final static StreamBuilder<Configuration, Void> topology = combine2(
-            auditDTopology,
+            programOne,
             example2(Sources.topic0, Sinks.detection),
             example3()
     );
-
-//    public  final StreamBuilder<Configuration, Void> instance() {
-//        return combine(
-//                auditDTopology,
-//                example2(Sources.auditD, Sinks.detection),
-//                example3()
-//        );
-//    }
 
 }

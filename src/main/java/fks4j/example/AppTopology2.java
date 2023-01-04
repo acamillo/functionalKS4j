@@ -1,19 +1,17 @@
-package fjks.example;
+package fks4j.example;
 
-import fjks.kafka.streams.topology.KStreamSdk2;
-import fjks.kafka.streams.topology.SafeTopic;
-import fjks.kafka.streams.topology.StreamBuilder;
+import fks4j.kafka.streams.topology.KStreamSdk2;
+import fks4j.kafka.streams.topology.SafeTopic;
+import fks4j.kafka.streams.topology.StreamBuilder;
 
-public enum AppTopology3 implements KStreamSdk2 {
+public final class AppTopology2 implements KStreamSdk2 {
 
-    INSTANCE;
-
-    private final StreamBuilder<Configuration, Void> auditDTopology = compose(
+    private final StreamBuilder<Configuration, Void> programOne = compose(
             Sources.topic0.andThen(stream()).map(ks -> ks.filter((k, v) -> !v.isEmpty())),
             sinkTo(Sinks.detection)
     );
 
-    private  StreamBuilder<Configuration, Void> example2(
+    private StreamBuilder<Configuration, Void> example2(
             StreamBuilder<Configuration, SafeTopic<String, String>> in,
             StreamBuilder<Configuration, SafeTopic<String, String>> out
     ) {
@@ -26,16 +24,20 @@ public enum AppTopology3 implements KStreamSdk2 {
         );
     }
 
-    private  StreamBuilder<Configuration, Void> example3() {
+    private StreamBuilder<Configuration, Void> example3() {
         return Sources.topic0.andThen(stream())
                 .map(ks -> ks.filter((k, v) -> !v.isEmpty()))
                 .flatMap(ks -> Sinks.detection.andThen(sink(ks)));
     }
 
-    public final StreamBuilder<Configuration, Void> topology = combine2(
-                auditDTopology,
-                example2(Sources.topic0, Sinks.detection),
-                example3()
-        );
+    public final StreamBuilder<Configuration, Void> topology = combine(
+            programOne,
+            example2(Sources.topic0, Sinks.detection),
+            example3()
+    );
 
+//    public final static AppTopology2 INSTANCE = new AppTopology2();
+
+//    private AppTopology2() {
+//    }
 }

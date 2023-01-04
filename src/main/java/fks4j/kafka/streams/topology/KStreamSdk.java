@@ -1,4 +1,4 @@
-package fjks.kafka.streams.topology;
+package fks4j.kafka.streams.topology;
 
 import org.apache.kafka.streams.kstream.KStream;
 

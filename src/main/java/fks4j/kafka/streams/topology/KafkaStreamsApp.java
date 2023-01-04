@@ -1,6 +1,6 @@
-package fjks.kafka.streams.topology;
+package fks4j.kafka.streams.topology;
 
-import fjks.example.Configuration;
+import fks4j.example.Configuration;
 
 public interface KafkaStreamsApp {
     StreamBuilder<Configuration, Void> instance() ;

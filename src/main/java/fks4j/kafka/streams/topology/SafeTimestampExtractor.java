@@ -1,4 +1,4 @@
-package fjks.kafka.streams.topology;
+package fks4j.kafka.streams.topology;
 
 import java.lang.reflect.ParameterizedType;
 import java.util.function.ToLongFunction;

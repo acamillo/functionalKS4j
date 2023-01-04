@@ -1,4 +1,4 @@
-package fjks.example.model;
+package fks4j.example.model;
 
 import java.time.LocalDateTime;
 
