@@ -1,6 +1,8 @@
 package fks4j.utillity;
 
+import fks4j.kafka.streams.serde.jackson.ConfigurableMapper;
 import fks4j.kafka.streams.topology.StreamBuilder;
+import java.time.Instant;
 import org.apache.kafka.streams.*;
 import org.junit.jupiter.api.Assertions;
 
@@ -33,7 +35,7 @@ import java.util.stream.IntStream;
  *
  * @param <CFG>
  */
-public abstract class TestKitRunnable<CFG, ENV> {
+public abstract class TestKitRunnable<CFG extends ConfigurableMapper, ENV> {
     private final Supplier<CFG>                              config;
     private final Function<CFG, Properties>                  props;
 //    private final Function<CFG, TopologyBuilder>             topologyBuilder;
@@ -98,6 +100,19 @@ public abstract class TestKitRunnable<CFG, ENV> {
          */
         public <K, V> void pipeOne(Function<ENV, TestInputTopic<K, V>> selector, K k, V v) {
             selector.apply(env).pipeInput(k, v);
+        }
+
+        /**
+         * To inject one record of data into the specified topic. The input needs to specified what TKE input topic to use, the key and the value.
+         * @param selector The topic, from the TKR, to use for the operation.
+         * @param k        the Key value to inject
+         * @param v        The Value part of the record
+         * @param when     The record timestamp
+         * @param <K>      the Key data type (e.g. String)
+         * @param <V>      the Value data type.
+         */
+        public <K, V> void pipeOne(Function<ENV, TestInputTopic<K, V>> selector, K k, V v, Instant when) {
+            selector.apply(env).pipeInput(k, v, when);
         }
 
         /**

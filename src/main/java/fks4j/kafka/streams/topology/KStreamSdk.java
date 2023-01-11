@@ -15,18 +15,18 @@ public final class KStreamSdk {
      * @param <K>
      * @param <V>
      */
-    public static <CFG, K,V> Function<KStream<K,V>, StreamBuilder<CFG, Void>> sinkTo(StreamBuilder<CFG, SafeTopic<K,V>> sb) {
+    public static <CFG, K,V> Function<KStream<K,V>, StreamBuilder<CFG, Void>> sinkTo(StreamBuilder<CFG, FTopic<K,V>> sb) {
         return kStream -> sb.andThen(sink(kStream));
     }
-    public static <K, V> StreamBuilder<SafeTopic<K, V>, KStream<K, V>> stream() {
-        return StreamBuilder.<SafeTopic<K, V>>environment().flatMap(topic ->
-                StreamBuilder.<SafeTopic<K, V>>get()
+    public static <K, V> StreamBuilder<FTopic<K, V>, KStream<K, V>> stream() {
+        return StreamBuilder.<FTopic<K, V>>environment().flatMap(topic ->
+                StreamBuilder.<FTopic<K, V>>get()
                         .map(sb -> sb.stream(topic.topicName, topic.asConsumed())));
     }
 
 
-    public static <K, V> StreamBuilder<SafeTopic<K, V>, Void> sink(final KStream<K, V> kStream) {
-        return StreamBuilder.<SafeTopic<K, V>>environment().map(topic -> {
+    public static <K, V> StreamBuilder<FTopic<K, V>, Void> sink(final KStream<K, V> kStream) {
+        return StreamBuilder.<FTopic<K, V>>environment().map(topic -> {
             kStream.to(topic.topicName, topic.asProduced());
             return null;
         });

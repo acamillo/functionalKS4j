@@ -1,5 +1,7 @@
 package fks4j.utillity;
 
+import fks4j.kafka.streams.serde.jackson.ConfigurableMapper;
+import fks4j.kafka.streams.topology.ConfigurableSerde;
 import org.apache.kafka.common.serialization.Serde;
 import org.apache.kafka.common.serialization.Serdes;
 import org.apache.kafka.streams.TestInputTopic;
@@ -13,7 +15,7 @@ import java.util.function.Function;
  * The user can call the TER helper methods for easily creating test input and output topics
  * @param <CFG>
  */
-public final class TestEnvironmentRuntime<CFG> {
+public final class TestEnvironmentRuntime<CFG extends ConfigurableMapper> {
     private final CFG cfg;
     private final TestKitTopology testKitTopology;
 
@@ -34,6 +36,13 @@ public final class TestEnvironmentRuntime<CFG> {
         return testKitTopology.driver.createInputTopic(name.apply(cfg), Serdes.String().serializer(), vSerde.serializer());
     }
 
+    public <V> TestInputTopic<String, V> createStringInput2(final Function<CFG, String> name,
+        final Function<ConfigurableMapper, ? extends ConfigurableSerde<? super CFG, V>> vSerde
+    ) {
+        var serializer = vSerde.apply(cfg).serde(false, cfg).serializer();
+        return testKitTopology.driver.createInputTopic(name.apply(cfg), Serdes.String().serializer(), serializer);
+    }
+
     /**
      * Creates a TestOutputTopic with a String key, given the name extracted from the Kafka Stream main application's configuration object.
      *
@@ -44,5 +53,13 @@ public final class TestEnvironmentRuntime<CFG> {
      */
     public <V> TestOutputTopic<String, V> createStringOutput(final Function<CFG, String> name, final Serde<V> vSerde) {
         return testKitTopology.driver.createOutputTopic(name.apply(cfg), Serdes.String().deserializer(), vSerde.deserializer());
+    }
+
+    public <V> TestOutputTopic<String, V> createStringOutput2(
+        final Function<CFG, String> name,
+        final Function<ConfigurableMapper, ? extends ConfigurableSerde<? super CFG, V>> vSerde
+ ) {
+        var deserializer = vSerde.apply(cfg).serde(false, cfg).deserializer();
+        return testKitTopology.driver.createOutputTopic(name.apply(cfg), Serdes.String().deserializer(), deserializer);
     }
 }

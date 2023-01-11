@@ -1,10 +1,19 @@
 package fks4j.example;
 
-import fks4j.kafka.streams.topology.SafeTopic;
+import fks4j.example.model.Model1;
+import fks4j.example.model.Model2;
+import fks4j.example.model.Model3;
+import fks4j.kafka.streams.topology.FSerde;
+import fks4j.kafka.streams.topology.FTopic;
 import fks4j.kafka.streams.topology.StreamBuilder;
-import org.apache.kafka.common.serialization.Serdes;
 
 public class Sinks {
-    public final static StreamBuilder<Configuration, SafeTopic<String, String>> detection =
-            SafeTopic.of(c -> c.outputTopic0, Serdes.String(), Serdes.String());
+    public final static StreamBuilder<Configuration, FTopic<String, Model1>> model1 =
+      FTopic.from(c -> c.outputModel1, FSerde.string(), FSerde.json(Model1.jsonSerde));
+
+    public final static StreamBuilder<Configuration, FTopic<String, Model3>> model3 =
+      FTopic.from(c -> c.outputModel3, FSerde.string(), FSerde.json(Model3.jsonSerde));
+    public final static StreamBuilder<Configuration, FTopic<String, Model2>> model2 =
+      FTopic.from(c -> c.outputModel2, FSerde.string(), FSerde.json(Model2.encoder, Model2.decoder));
+
 }

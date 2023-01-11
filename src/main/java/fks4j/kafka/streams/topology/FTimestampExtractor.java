@@ -3,11 +3,11 @@ package fks4j.kafka.streams.topology;
 import java.lang.reflect.ParameterizedType;
 import java.util.function.ToLongFunction;
 
-class SafeTimestampExtractor<T> {
+class FTimestampExtractor<T> {
     private final Class<T> clazz;
 
     @SuppressWarnings("unchecked")
-    public SafeTimestampExtractor() {
+    public FTimestampExtractor() {
         // read here for this reflection dark magic: https://stackoverflow.com/questions/4837190/java-generics-get-class
         clazz  = (Class<T>) ((ParameterizedType)getClass().getGenericSuperclass()).getActualTypeArguments()[0];
     }

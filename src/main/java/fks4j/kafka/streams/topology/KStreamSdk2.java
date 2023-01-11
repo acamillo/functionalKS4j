@@ -16,19 +16,19 @@ public interface KStreamSdk2 {
      * @param <V>
      * @return a function whose evaluation terminates the pipeline with a 'sink'
      */
-    default <CFG, K, V> Function<KStream<K, V>, StreamBuilder<CFG, Void>> sinkTo(StreamBuilder<CFG, SafeTopic<K, V>> sb) {
+    default <CFG, K, V> Function<KStream<K, V>, StreamBuilder<CFG, Void>> sinkTo(StreamBuilder<CFG, FTopic<K, V>> sb) {
         return kStream -> sb.andThen(sink(kStream));
     }
 
-    public default <K, V> StreamBuilder<SafeTopic<K, V>, KStream<K, V>> stream() {
-        return StreamBuilder.<SafeTopic<K, V>>environment().flatMap(topic ->
-                StreamBuilder.<SafeTopic<K, V>>get()
+    public default <K, V> StreamBuilder<FTopic<K, V>, KStream<K, V>> stream() {
+        return StreamBuilder.<FTopic<K, V>>environment().flatMap(topic ->
+                StreamBuilder.<FTopic<K, V>>get()
                         .map(sb -> sb.stream(topic.topicName, topic.asConsumed())));
     }
 
 
-    default <K, V> StreamBuilder<SafeTopic<K, V>, Void> sink(final KStream<K, V> kStream) {
-        return StreamBuilder.<SafeTopic<K, V>>environment().map(topic -> {
+    default <K, V> StreamBuilder<FTopic<K, V>, Void> sink(final KStream<K, V> kStream) {
+        return StreamBuilder.<FTopic<K, V>>environment().map(topic -> {
             kStream.to(topic.topicName, topic.asProduced());
             return null;
         });
