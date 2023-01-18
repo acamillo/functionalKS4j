@@ -1,11 +1,16 @@
 package fks4j.example;
 
+import static fks4j.kafka.streams.topology.API.combine;
+import static fks4j.kafka.streams.topology.API.compose;
+import static fks4j.kafka.streams.topology.API.sink;
+import static fks4j.kafka.streams.topology.API.sinkTo;
+import static fks4j.kafka.streams.topology.API.stream;
+
 import fks4j.example.model.Model1;
-import fks4j.kafka.streams.topology.KStreamSdk2;
 import fks4j.kafka.streams.topology.FTopic;
 import fks4j.kafka.streams.topology.StreamBuilder;
 
-public final class AppTopology2 implements KStreamSdk2 {
+public final class AppTopology2  {
 
     private final StreamBuilder<Configuration, Void> programOne = compose(
             Sources.model1.andThen(stream()).map(ks -> ks.filter((k, v) -> !v.name().isEmpty())),

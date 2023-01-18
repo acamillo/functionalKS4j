@@ -5,7 +5,7 @@ import org.apache.kafka.streams.kstream.KStream;
 import java.util.Arrays;
 import java.util.function.Function;
 
-public final class KStreamSdk {
+public final class API   {
 
     /**
      * Terminal operation. Closes a StreamBuilder pipeline with a 'sink' operation to the specified safe topic

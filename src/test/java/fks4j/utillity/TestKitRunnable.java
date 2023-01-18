@@ -128,6 +128,17 @@ public abstract class TestKitRunnable<CFG extends ConfigurableMapper, ENV> {
         }
 
         /**
+         * To consume (i.e. extract) all the records from a TestOutputTopic instance. The user needs to specified what TKE output topic to use.
+         * The method returns a `java.util.List` of <V>
+         *
+         * @param selector The topic, from the TKR, to use for the operation.
+         * @param <K>      the Key data type (e.g. String)
+         * @param <V>      the Value data type.
+         */     public <K, V> List<V> consumeValues(Function<ENV, TestOutputTopic<K, V>> selector) {
+            return selector.apply(env).readValuesToList();
+        }
+
+        /**
          * Helper method to verify whether two lists of KeyValue records, with String Key, contains exactly the same content.
          * In case of failure the `prettyPrinter` is called to generate a user-friendly output format of the offending data
          *

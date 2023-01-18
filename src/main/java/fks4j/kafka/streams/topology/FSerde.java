@@ -83,7 +83,10 @@ public final class FSerde {
    * @return a Serde<String>
    */
   public static Function<ConfigurableMapper, StaticSerde<String>> string() {
-    return $ -> new StaticSerde<>(Serdes.String());
+    return raw(Serdes.String());
   }
 
+  public static <T> Function<ConfigurableMapper, StaticSerde<T>> raw(Serde<T> serde) {
+    return $ -> new StaticSerde<>(serde);
+  }
 }
