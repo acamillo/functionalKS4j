@@ -12,6 +12,7 @@ import java.time.LocalDateTime;
 import java.util.List;
 import org.apache.kafka.streams.KeyValue;
 import org.junit.jupiter.api.Assertions;
+import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.Test;
 
 public class AppTopologyTest extends TestKitRunnable<Configuration, TestKitEnv> {
@@ -22,6 +23,7 @@ public class AppTopologyTest extends TestKitRunnable<Configuration, TestKitEnv> 
     super(TestConfig::build, TestKitEnv::new, AppTopology.topology, c -> c.properties);
   }
 
+  @Disabled("Needs detectionOne settings")
   @Test
   public void injectTopic1() {
     test(tkr -> {
@@ -40,6 +42,7 @@ public class AppTopologyTest extends TestKitRunnable<Configuration, TestKitEnv> 
       produced.forEach(kv -> System.out.println(kv.value));
     });
   }
+  @Disabled("Needs detectionOne settings")
   @Test
   public void injectTopic2() {
     test(tkr -> {

@@ -1,0 +1,21 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<configuration>
+
+  <appender name="STDOUT" class="ch.qos.logback.core.ConsoleAppender">
+    <encoder>
+      <pattern>[%yellow(%d{HH:mm:ss.SSS})] [%t] [%highlight(%-5level)] [%cyan(%logger{36})] - %msg%n</pattern>
+    </encoder>
+  </appender>
+
+  <appender name="ASYNC-STDOUT" class="ch.qos.logback.classic.AsyncAppender">
+    <appender-ref ref="STDOUT" />
+  </appender>
+
+  <root level="info">
+    <appender-ref ref="ASYNC-STDOUT"/>
+  </root>
+
+<!--  <logger name ="org.apache.kafka" level="warn" />-->
+  <logger name ="org.apache.kafka.clients.consumer" level="warn" />
+
+</configuration>
