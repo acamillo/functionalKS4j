@@ -83,6 +83,6 @@ public final class FTopic<K, V> {
     this.topicName = topicName;
     this.keySerde = keySerde;
     this.valueSerde = valueSerde;
-    this.mayBeExtractor = mayBeExtractor.map(extractor -> new FTimestampExtractor<V>().of(extractor));
+    this.mayBeExtractor = mayBeExtractor.map(FTimestampExtractor::from);
   }
 }

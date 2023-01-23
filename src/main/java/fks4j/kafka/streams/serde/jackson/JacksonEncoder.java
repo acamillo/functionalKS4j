@@ -9,10 +9,12 @@ import java.util.function.Function;
 public final class JacksonEncoder {
 
   /**
-   * Generates a JsonEncoder instance for type `T` given in input an instance of ConfigurableMapper (i.e an ObjectMapper)
+   * Generates a JsonEncoder instance for type `T` given in input an instance of ConfigurableMapper (i.e an
+   * ObjectMapper)
+   *
    * @param tRef the type `T` TypeReference. Required by Jackson to properly figure out the generic type `T`
-   * @return
    * @param <T>
+   * @return
    */
   public static <T> Function<ConfigurableMapper, JsonEncoder<T>> gen(final TypeReference<T> tRef) {
     return configurableMapper ->

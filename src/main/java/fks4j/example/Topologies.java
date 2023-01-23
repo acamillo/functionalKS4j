@@ -1,9 +1,8 @@
 package fks4j.example;
 
 import fks4j.kafka.streams.topology.StreamBuilder;
-import org.apache.kafka.streams.StreamsBuilder;
-
 import java.util.Arrays;
+import org.apache.kafka.streams.StreamsBuilder;
 
 public enum Topologies  {
 

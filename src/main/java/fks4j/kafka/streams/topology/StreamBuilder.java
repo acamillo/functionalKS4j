@@ -2,10 +2,9 @@ package fks4j.kafka.streams.topology;
 
 import io.vavr.Tuple;
 import io.vavr.Tuple2;
-import org.apache.kafka.streams.StreamsBuilder;
-
 import java.util.function.BiFunction;
 import java.util.function.Function;
+import org.apache.kafka.streams.StreamsBuilder;
 
 public final class StreamBuilder<E, A> {
 

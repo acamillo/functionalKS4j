@@ -1,11 +1,10 @@
 package fks4j.utillity;
 
+import fks4j.kafka.streams.serde.JsonEncoder;
 import fks4j.kafka.streams.serde.jackson.ConfigurableMapper;
+import fks4j.kafka.streams.serde.jackson.JsonSerde;
 import fks4j.kafka.streams.topology.StreamBuilder;
 import java.time.Instant;
-import org.apache.kafka.streams.*;
-import org.junit.jupiter.api.Assertions;
-
 import java.util.Comparator;
 import java.util.List;
 import java.util.Map;
@@ -15,6 +14,12 @@ import java.util.function.Function;
 import java.util.function.Supplier;
 import java.util.stream.Collectors;
 import java.util.stream.IntStream;
+import org.apache.kafka.streams.KeyValue;
+import org.apache.kafka.streams.StreamsBuilder;
+import org.apache.kafka.streams.TestInputTopic;
+import org.apache.kafka.streams.TestOutputTopic;
+import org.apache.kafka.streams.TopologyTestDriver;
+import org.junit.jupiter.api.Assertions;
 
 /**
  * Base class for Kafka Stream application's topology test.
@@ -68,9 +73,9 @@ public abstract class TestKitRunnable<CFG extends ConfigurableMapper, ENV> {
             var testEnvRuntime = new TestEnvironmentRuntime<>(cfg, tkt);
             var testKitEnv = testKitEnvironment.apply(testEnvRuntime);
 
-            var testKiRuntime = new TestKitRuntime(testKitEnv, testEnvRuntime);
+            var testKitRuntime = new TestKitRuntime(testKitEnv, testEnvRuntime);
 
-            test.accept(testKiRuntime);
+            test.accept(testKitRuntime);
             return null;
         });
     }
@@ -81,105 +86,146 @@ public abstract class TestKitRunnable<CFG extends ConfigurableMapper, ENV> {
      * input and output operations.
      */
     public final class TestKitRuntime {
-        final private ENV                         env;
-        final private TestEnvironmentRuntime<CFG> testEnvRuntime;
+      final private ENV env;
+      final private TestEnvironmentRuntime<CFG> testEnvRuntime;
 
-        private TestKitRuntime(ENV env, TestEnvironmentRuntime<CFG> testEnvRuntime) {
-            this.env = env;
-            this.testEnvRuntime = testEnvRuntime;
-        }
+      private TestKitRuntime(ENV env, TestEnvironmentRuntime<CFG> testEnvRuntime) {
+        this.env = env;
+        this.testEnvRuntime = testEnvRuntime;
+      }
 
-        /**
-         * To inject one record of data into the specified topic. The input needs to specified what TKE input topic to use, the key and the value.
-         *
-         * @param selector The topic, from the TKR, to use for the operation.
-         * @param k        the Key value to inject
-         * @param v        The Value part of the record
-         * @param <K>      the Key data type (e.g. String)
-         * @param <V>      the Value data type.
-         */
-        public <K, V> void pipeOne(Function<ENV, TestInputTopic<K, V>> selector, K k, V v) {
-            selector.apply(env).pipeInput(k, v);
-        }
+      /**
+       * To inject one record of data into the specified topic. The input needs to specified what TKE input topic to use,
+       * the key and the value.
+       *
+       * @param selector The topic, from the TKR, to use for the operation.
+       * @param k        the Key value to inject
+       * @param v        The Value part of the record
+       * @param <K>      the Key data type (e.g. String)
+       * @param <V>      the Value data type.
+       */
+      public <K, V> void pipeOne(Function<ENV, TestInputTopic<K, V>> selector, K k, V v) {
+        selector.apply(env).pipeInput(k, v);
+      }
 
-        /**
-         * To inject one record of data into the specified topic. The input needs to specified what TKE input topic to use, the key and the value.
-         * @param selector The topic, from the TKR, to use for the operation.
-         * @param k        the Key value to inject
-         * @param v        The Value part of the record
-         * @param when     The record timestamp
-         * @param <K>      the Key data type (e.g. String)
-         * @param <V>      the Value data type.
-         */
-        public <K, V> void pipeOne(Function<ENV, TestInputTopic<K, V>> selector, K k, V v, Instant when) {
-            selector.apply(env).pipeInput(k, v, when);
-        }
+      /**
+       * To inject one record of data into the specified topic. The input needs to specified what TKE input topic to use,
+       * the key and the value.
+       *
+       * @param selector The topic, from the TKR, to use for the operation.
+       * @param k        the Key value to inject
+       * @param v        The Value part of the record
+       * @param when     The record timestamp
+       * @param <K>      the Key data type (e.g. String)
+       * @param <V>      the Value data type.
+       */
+      public <K, V> void pipeOne(Function<ENV, TestInputTopic<K, V>> selector, K k, V v, Instant when) {
+        selector.apply(env).pipeInput(k, v, when);
+      }
 
-        /**
-         * To consume (i.e. extract) all the records from a TestOutputTopic instance. The user needs to specified what TKE output topic to use.
-         * The method returns a `java.util.List` of KeyValue<K,V>
-         *
-         * @param selector The topic, from the TKR, to use for the operation.
-         * @param <K>      the Key data type (e.g. String)
-         * @param <V>      the Value data type.
-         */
-        public <K, V> List<KeyValue<K, V>> consumeAll(Function<ENV, TestOutputTopic<K, V>> selector) {
-            return selector.apply(env).readKeyValuesToList();
-        }
+      /**
+       * To inject a list of records of data into the specified topic. The input needs to specified what TKE input topic
+       * to use, and a list of KeyValue pairs.
+       *
+       * @param selector  The topic, from the TKR, to use for the operation.
+       * @param keyValues the list of KeyValue pairs to inject
+       * @param <K>       the Key data type (e.g. String)
+       * @param <V>       the Value data type.
+       */
+      public <K, V> void pipeMany(Function<ENV, TestInputTopic<K, V>> selector, final List<KeyValue<K, V>> keyValues) {
+        selector.apply(env).pipeKeyValueList(keyValues);
+      }
 
-        /**
-         * To consume (i.e. extract) all the records from a TestOutputTopic instance. The user needs to specified what TKE output topic to use.
-         * The method returns a `java.util.List` of <V>
-         *
-         * @param selector The topic, from the TKR, to use for the operation.
-         * @param <K>      the Key data type (e.g. String)
-         * @param <V>      the Value data type.
-         */     public <K, V> List<V> consumeValues(Function<ENV, TestOutputTopic<K, V>> selector) {
-            return selector.apply(env).readValuesToList();
-        }
+      /**
+       * To inject a list of events of data into the specified topic. The input needs to specified what TKE input topic to
+       * use, the key K to use and a list of values.
+       *
+       * @param selector The topic, from the TKR, to use for the operation.
+       * @param k        the Key value to inject
+       * @param values   the list of values V to inject
+       * @param <K>      the Key data type (e.g. String)
+       * @param <V>      the Value data type.
+       */
+      public <K, V> void pipeMany(Function<ENV, TestInputTopic<K, V>> selector, K k, final List<V> values) {
+        values.forEach(v -> pipeOne(selector, k, v));
+      }
 
-        /**
-         * Helper method to verify whether two lists of KeyValue records, with String Key, contains exactly the same content.
-         * In case of failure the `prettyPrinter` is called to generate a user-friendly output format of the offending data
-         *
-         * @param expected      The data we expect.
-         * @param actual        The real data generate by the application
-         * @param comparator    A comparator instance to compare the V data types
-         * @param prettyPrinter a function to produce a user-friendly printing of the data set.
-         * @param <V>           The Value data type.
-         */
-        public <V> void assertEquals(
-            final List<KeyValue<String, V>> expected,
-            final List<KeyValue<String, V>> actual,
-            Comparator<V> comparator,
-            Function<? super Object, String> prettyPrinter
-        ) {
-            // verify first if the two lists have the same size, if so, proceed to compare each item
-            Assertions.assertEquals(expected.size(), actual.size());
 
-            IntStream.range(0, expected.size())
-                .mapToObj(i -> Map.entry(expected.get(i), actual.get(i)))
-                .forEach(keyValueEntry -> {
-                    try {
-                        // compare first the key part, which by definition in a String, then the value part using the comparator
-                        Assertions.assertEquals(keyValueEntry.getKey().key, keyValueEntry.getValue().key);
-                        Assertions.assertEquals(0,
-                            comparator.compare(keyValueEntry.getKey().value, keyValueEntry.getValue().value));
-                    } catch (AssertionError e) {
-                        var xs0 = expected.stream()
-                            .map(kv -> String.format("(%s, %s)", kv.key, prettyPrinter.apply(kv.value)))
-                            .collect(Collectors.joining(", "));
-                        var xs1 = actual.stream()
-                            .map(kv -> String.format("(%s, %s)", kv.key, prettyPrinter.apply(kv.value)))
-                            .collect(Collectors.joining(", "));
+      /**
+       * To consume (i.e. extract) all the records from a TestOutputTopic instance. The user needs to specified what TKE
+       * output topic to use. The method returns a `java.util.List` of KeyValue<K,V>
+       *
+       * @param selector The topic, from the TKR, to use for the operation.
+       * @param <K>      the Key data type (e.g. String)
+       * @param <V>      the Value data type.
+       */
+      public <K, V> List<KeyValue<K, V>> consumeAll(Function<ENV, TestOutputTopic<K, V>> selector) {
+        return selector.apply(env).readKeyValuesToList();
+      }
 
-                        String message =
-                            "\nExpected :" + xs0 +
-                                "\nActual   :" + xs1;
-                        throw new AssertionError(message);
-                    }
-                });
-        }
+      /**
+       * To consume (i.e. extract) all the records from a TestOutputTopic instance. The user needs to specified what TKE
+       * output topic to use. The method returns a `java.util.List` of <V>
+       *
+       * @param selector The topic, from the TKR, to use for the operation.
+       * @param <K>      the Key data type (e.g. String)
+       * @param <V>      the Value data type.
+       */
+      public <K, V> List<V> consumeValues(Function<ENV, TestOutputTopic<K, V>> selector) {
+        return selector.apply(env).readValuesToList();
+      }
+
+      /**
+       * Helper method to verify whether two lists of KeyValue records, with String Key, contains exactly the same
+       * content. In case of failure the `prettyPrinter` is called to generate a user-friendly output format of the
+       * offending data
+       *
+       * @param expected      The data we expect.
+       * @param actual        The real data generate by the application
+       * @param comparator    A comparator instance to compare the V data types
+       * @param prettyPrinter a function to produce a user-friendly printing of the data set.
+       * @param <V>           The Value data type.
+       */
+      public <V> void assertEquals(
+          final List<KeyValue<String, V>> expected,
+          final List<KeyValue<String, V>> actual,
+          Comparator<V> comparator,
+          Function<? super Object, String> prettyPrinter
+      ) {
+        // verify first if the two lists have the same size, if so, proceed to compare each item
+        Assertions.assertEquals(expected.size(), actual.size());
+
+        IntStream.range(0, expected.size())
+            .mapToObj(i -> Map.entry(expected.get(i), actual.get(i)))
+            .forEach(keyValueEntry -> {
+              try {
+                // compare first the key part, which by definition in a String, then the value part using the comparator
+                Assertions.assertEquals(keyValueEntry.getKey().key, keyValueEntry.getValue().key);
+                Assertions.assertEquals(0,
+                    comparator.compare(keyValueEntry.getKey().value, keyValueEntry.getValue().value));
+              } catch (AssertionError e) {
+                var xs0 = expected.stream()
+                    .map(kv -> String.format("(%s, %s)", kv.key, prettyPrinter.apply(kv.value)))
+                    .collect(Collectors.joining(", "));
+                var xs1 = actual.stream()
+                    .map(kv -> String.format("(%s, %s)", kv.key, prettyPrinter.apply(kv.value)))
+                    .collect(Collectors.joining(", "));
+
+                String message =
+                    "\nExpected :" + xs0 +
+                        "\nActual   :" + xs1;
+                throw new AssertionError(message);
+              }
+            });
+      }
+
+      public CFG configuration() {
+        return testEnvRuntime.configuration();
+      }
+
+      public <T> JsonEncoder<T> encoder(JsonSerde<T> jsonSerde) {
+        return jsonSerde.encoder().apply(testEnvRuntime.mapper());
+      }
     }
 
     private TestKitTopology testKitTopology(final CFG cfg) {

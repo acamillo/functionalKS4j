@@ -1,9 +1,9 @@
 package fks4j.kafka.streams.topology;
 
-import org.apache.kafka.streams.kstream.KStream;
-
 import java.util.Arrays;
+import java.util.function.BiFunction;
 import java.util.function.Function;
+import org.apache.kafka.streams.kstream.KStream;
 
 public final class API   {
 
@@ -44,6 +44,35 @@ public final class API   {
             final Function<KStream<K0, V0>, StreamBuilder<CFG, Void>> sink
     ) {
         return gen.flatMap(sink);
+    }
+
+    /**
+     * Composes two streams together sources using a dependant bi-stream computation and sinking the output
+     * using the terminal stream computation parameter.
+     *
+     * @param gen0 the first stream generator
+     * @param gen1 the second stream generator
+     * @param joiner a bifunction joining the two input streams into a third stream type
+     * @param sink a terminal operation
+     * @return a terminal topology
+     * @param <CFG> the topology configuration
+     * @param <K0> the key type for first stream
+     * @param <V0> the value type for first stream
+     * @param <K1> the key type for second stream
+     * @param <V1> the value type for second stream
+     * @param <K2> the key value for the joined stream
+     * @param <V2> the value type for the joined stream
+     */
+    public static <CFG, K0, V0, K1, V1, K2, V2> StreamBuilder<CFG, Void> compose(
+        final StreamBuilder<CFG, KStream<K0, V0>> gen0,
+        final StreamBuilder<CFG, KStream<K1, V1>> gen1,
+        final BiFunction<KStream<K0, V0>, KStream<K1, V1>, StreamBuilder<CFG, KStream<K2, V2>>> joiner,
+        final Function<KStream<K2, V2>, StreamBuilder<CFG, Void>> sink
+    ) {
+        return gen0.flatMap(ks0 ->
+                gen1.flatMap(ks1 ->
+                    joiner.apply(ks0, ks1)))
+            .flatMap(sink);
     }
 
     /**

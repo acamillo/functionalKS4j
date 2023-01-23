@@ -2,7 +2,6 @@ package fks4j.example.model;
 
 import fks4j.example.Configuration;
 import fks4j.kafka.streams.serde.jackson.ConfigurableMapper;
-import java.time.LocalDateTime;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
 import org.opentest4j.AssertionFailedError;
@@ -13,7 +12,7 @@ class Model1Test {
 
   @Test
   void serializeAndDeserialize2() {
-    var original = new Model1("John", 30, "abcd", LocalDateTime.now().minusYears(20));
+    var original = new Model1("John", 30, "abcd");
 
     var json = Model1.jsonSerde.encoder().andThen($ -> $.encode(original)).apply(cm);
     System.out.println("JSON: " + new String(json));

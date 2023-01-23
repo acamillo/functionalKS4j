@@ -2,12 +2,11 @@ package fks4j.utillity;
 
 import fks4j.kafka.streams.serde.jackson.ConfigurableMapper;
 import fks4j.kafka.streams.topology.ConfigurableSerde;
+import java.util.function.Function;
 import org.apache.kafka.common.serialization.Serde;
 import org.apache.kafka.common.serialization.Serdes;
 import org.apache.kafka.streams.TestInputTopic;
 import org.apache.kafka.streams.TestOutputTopic;
-
-import java.util.function.Function;
 
 /**
  * Helper class for building Test Kit Environment (TKE) instances. An instance of TestEnvRuntime (TER) is automatically
@@ -24,42 +23,73 @@ public final class TestEnvironmentRuntime<CFG extends ConfigurableMapper> {
         this.testKitTopology = testKitTopology;
     }
 
-    /**
-     * Creates a TestInputTopic with a String key, given the name extracted from the Kafka Stream main application's configuration object.
-     *
-     * @param name The name of the input topic.
-     * @param vSerde The serde to use for value serialization.
-     * @return a Kafka TestInputTopic instance
-     * @param <V> the Value data type
-     */
+  /**
+   * Creates a TestInputTopic with a String key, given the name extracted from the Kafka Stream main application's
+   * configuration object.
+   *
+   * @param name   The name of the input topic.
+   * @param vSerde The serde to use for value serialization.
+   * @param <V>    the Value data type
+   * @return a Kafka TestInputTopic instance
+   */
     public <V> TestInputTopic<String, V> createStringInput(final Function<CFG, String> name, final Serde<V> vSerde) {
         return testKitTopology.driver.createInputTopic(name.apply(cfg), Serdes.String().serializer(), vSerde.serializer());
     }
 
-    public <V> TestInputTopic<String, V> createStringInput2(final Function<CFG, String> name,
-        final Function<ConfigurableMapper, ? extends ConfigurableSerde<? super CFG, V>> vSerde
-    ) {
-        var serializer = vSerde.apply(cfg).serde(false, cfg).serializer();
-        return testKitTopology.driver.createInputTopic(name.apply(cfg), Serdes.String().serializer(), serializer);
+  /**
+   * Creates a TestInputTopic with a String key, given the name extracted from the Kafka Stream main application's
+   * configuration object.
+   *
+   * @param name   The name of the input topic.
+   * @param vSerde The configurable serde to use for value serialization.
+   * @param <V>    the Value data type
+   * @return a Kafka TestInputTopic instance
+   */
+  public <V> TestInputTopic<String, V> createStringInput(
+      final Function<CFG, String> name,
+      final Function<ConfigurableMapper, ? extends ConfigurableSerde<? super CFG, V>> vSerde
+  ) {
+    var serializer = vSerde.apply(cfg).serde(false, cfg).serializer();
+    return testKitTopology.driver.createInputTopic(name.apply(cfg), Serdes.String().serializer(), serializer);
+  }
+
+  /**
+   * Creates a TestOutputTopic with a String key, given the name extracted from the Kafka Stream main application's
+   * configuration object.
+   *
+   * @param name   The name of the output topic.
+   * @param vSerde The serde to use for value deserialization.
+   * @param <V>    the Value data type
+   * @return a Kafka TestOutputTopic instance
+   */
+  public <V> TestOutputTopic<String, V> createStringOutput(
+      final Function<CFG, String> name,
+      final Serde<V> vSerde
+  ) {
+    return testKitTopology.driver.createOutputTopic(name.apply(cfg), Serdes.String().deserializer(),
+        vSerde.deserializer());
+  }
+
+  /**
+   * Creates a TestOutputTopic with a String key, given the name extracted from the Kafka Stream main application's
+   * configuration object.
+   *
+   * @param name   The name of the output topic.
+   * @param vSerde The configurable serde to use for value serialization.
+   * @param <V>    the Value data type
+   * @return a Kafka TestOutputTopic instance
+   */
+  public <V> TestOutputTopic<String, V> createStringOutput(
+      final Function<CFG, String> name,
+      final Function<ConfigurableMapper, ? extends ConfigurableSerde<? super CFG, V>> vSerde
+  ) {
+    var deserializer = vSerde.apply(cfg).serde(false, cfg).deserializer();
+    return testKitTopology.driver.createOutputTopic(name.apply(cfg), Serdes.String().deserializer(), deserializer);
+  }
+
+    public ConfigurableMapper mapper() {
+        return cfg;
     }
 
-    /**
-     * Creates a TestOutputTopic with a String key, given the name extracted from the Kafka Stream main application's configuration object.
-     *
-     * @param name The name of the output topic.
-     * @param vSerde The serde to use for value deserialization.
-     * @return a Kafka TestOutputTopic instance
-     * @param <V> the Value data type
-     */
-    public <V> TestOutputTopic<String, V> createStringOutput(final Function<CFG, String> name, final Serde<V> vSerde) {
-        return testKitTopology.driver.createOutputTopic(name.apply(cfg), Serdes.String().deserializer(), vSerde.deserializer());
-    }
-
-    public <V> TestOutputTopic<String, V> createStringOutput2(
-        final Function<CFG, String> name,
-        final Function<ConfigurableMapper, ? extends ConfigurableSerde<? super CFG, V>> vSerde
- ) {
-        var deserializer = vSerde.apply(cfg).serde(false, cfg).deserializer();
-        return testKitTopology.driver.createOutputTopic(name.apply(cfg), Serdes.String().deserializer(), deserializer);
-    }
+    public CFG configuration() { return cfg; }
 }

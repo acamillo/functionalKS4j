@@ -41,8 +41,37 @@
         <version>3.0.0-M8</version>
       </plugin>
 
+<!--      This and the maven-project-info-reports-plugin plugins are required for CheckStyle plugin to run fine.-->
+<!--      Otherwise weird ClassNotFound errors happen-->
+<!--      <plugin>-->
+<!--        <groupId>org.apache.maven.plugins</groupId>-->
+<!--        <artifactId>maven-site-plugin</artifactId>-->
+<!--        <version>3.11.0</version>-->
+<!--      </plugin>-->
+
+<!--      <plugin>-->
+<!--        <groupId>org.apache.maven.plugins</groupId>-->
+<!--        <artifactId>maven-project-info-reports-plugin</artifactId>-->
+<!--        <version>3.4.2</version>-->
+<!--      </plugin>-->
+
     </plugins>
   </build>
+
+<!--  <reporting>-->
+<!--    <plugins>-->
+
+<!--      <plugin>-->
+<!--        <groupId>org.apache.maven.plugins</groupId>-->
+<!--        <artifactId>maven-checkstyle-plugin</artifactId>-->
+<!--        <version>3.2.1</version>-->
+<!--        <configuration>-->
+<!--          <configLocation>checkstyle-rules.xml</configLocation>-->
+<!--        </configuration>-->
+<!--      </plugin>-->
+
+<!--    </plugins>-->
+<!--  </reporting>-->
 
   <dependencies>
     <!-- https://mvnrepository.com/artifact/org.apache.kafka/kafka-streams -->
@@ -108,6 +137,9 @@
       <version>2.14.1</version>
     </dependency>
 
+<!--    To solve the error-->
+<!--    SLF4J: Failed to load class "org.slf4j.impl.StaticLoggerBinder".-->
+<!--    SLF4J: Defaulting to no-operation (NOP) logger implementation-->
     <dependency>
       <groupId>org.slf4j</groupId>
       <artifactId>slf4j-api</artifactId>

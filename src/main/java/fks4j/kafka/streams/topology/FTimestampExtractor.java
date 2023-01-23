@@ -1,23 +1,11 @@
 package fks4j.kafka.streams.topology;
 
-import java.lang.reflect.ParameterizedType;
 import java.util.function.ToLongFunction;
 
-class FTimestampExtractor<T> {
-    private final Class<T> clazz;
-
+class FTimestampExtractor {
     @SuppressWarnings("unchecked")
-    public FTimestampExtractor() {
-        // read here for this reflection dark magic: https://stackoverflow.com/questions/4837190/java-generics-get-class
-        clazz  = (Class<T>) ((ParameterizedType)getClass().getGenericSuperclass()).getActualTypeArguments()[0];
+    public  static <T> org.apache.kafka.streams.processor.TimestampExtractor from(ToLongFunction<T> extractor) {
+        return (consumerRecord, l) -> extractor.applyAsLong((T)consumerRecord.value());
     }
-
-    public  org.apache.kafka.streams.processor.TimestampExtractor of(ToLongFunction<T> extractor) {
-        return (consumerRecord, l) -> extractor.applyAsLong(clazz.cast(consumerRecord.value()));
-    }
-
-//    public  org.apache.kafka.streams.processor.TimestampExtractor of(Class<T> clazz, ToLongFunction<T> extractor) {
-//        return (consumerRecord, l) -> extractor.applyAsLong(clazz.cast(consumerRecord.value()));
-//    }
 
 }

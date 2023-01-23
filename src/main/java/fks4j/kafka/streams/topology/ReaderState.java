@@ -1,7 +1,6 @@
 package fks4j.kafka.streams.topology;
 
 import io.vavr.Tuple2;
-
 import java.util.function.BiFunction;
 import java.util.function.Function;
 

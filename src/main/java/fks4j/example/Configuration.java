@@ -17,36 +17,64 @@ public class Configuration implements ConfigurableMapper {
   public final String outputModel1;
   public final String outputModel2;
 
+  public final String inputModelD;
+  public final String outputModelD;
+
   public final Duration joinWindow;
+  public final Duration aggregationsWindow;
+  public final int aggregationThreshold;
   public final Properties properties;
   public final ObjectMapper mapper;
 
 
-  public Configuration(String inputTopic0, String inputTopic1, String outputModel3, String outputModel1,
-      String outputModel2, Duration joinWindow,
-      Properties properties, ObjectMapper mapper) {
+  public Configuration(
+      String inputTopic0,
+      String inputTopic1,
+      String outputModel3,
+      String outputModel1,
+      String outputModel2,
+      String inputModelD,
+      String outputModelD,
+      Duration joinWindow,
+      Duration aggregationsWindow,
+      int aggregationThreshold, Properties properties,
+      ObjectMapper mapper) {
     this.inputTopic0 = inputTopic0;
     this.inputTopic1 = inputTopic1;
     this.outputModel3 = outputModel3;
     this.outputModel1 = outputModel1;
     this.outputModel2 = outputModel2;
+    this.inputModelD = inputModelD;
+    this.outputModelD = outputModelD;
+    this.aggregationThreshold = aggregationThreshold;
     this.properties = properties;
     this.joinWindow = joinWindow;
+    this.aggregationsWindow = aggregationsWindow;
     this.mapper = mapper;
   }
 
-  public Configuration(String inputTopic0, String inputTopic1,
+  public Configuration(
+      String inputTopic0,
+      String inputTopic1,
       String outputModel3,
       String outputModel1,
-      String outputModel2, Duration joinWindow,
-      Properties properties) {
+      String outputModel2,
+      String inputModelD,
+      String outputModelD,
+      Duration joinWindow,
+      Duration aggregationsWindow,
+      int aggregationThreshold, Properties properties) {
     this.inputTopic0 = inputTopic0;
     this.inputTopic1 = inputTopic1;
     this.outputModel3 = outputModel3;
     this.outputModel1 = outputModel1;
     this.outputModel2 = outputModel2;
+    this.inputModelD = inputModelD;
+    this.outputModelD = outputModelD;
+    this.aggregationThreshold = aggregationThreshold;
     this.properties = properties;
     this.joinWindow = joinWindow;
+    this.aggregationsWindow = aggregationsWindow;
     this.mapper = defaultMapper();
   }
 

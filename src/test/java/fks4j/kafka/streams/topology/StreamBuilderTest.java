@@ -1,7 +1,5 @@
 package fks4j.kafka.streams.topology;
 
-import static org.junit.jupiter.api.Assertions.*;
-
 import org.junit.jupiter.api.Test;
 
 class StreamBuilderTest {

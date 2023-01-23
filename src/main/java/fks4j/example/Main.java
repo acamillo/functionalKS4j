@@ -26,7 +26,11 @@ public class Main {
         "diags",
         "outputTopic1",
         "outputModel2",
+        "inputTopicD",
+        "putpputAggrOne",
         Duration.ofSeconds(60),
+        Duration.ofSeconds(10),
+        10,
         new Properties(),
         mapper);
 

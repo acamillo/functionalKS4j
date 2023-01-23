@@ -19,12 +19,12 @@ public final class TestKitEnv {
 
   public TestKitEnv(TestEnvironmentRuntime<Configuration> tkr) {
     this(
-        tkr.createStringInput2(c -> c.inputTopic0, FSerde.json(Model1.jsonSerde)),
-        tkr.createStringInput2(c -> c.inputTopic1, FSerde.json(Model2.encoder, Model2.decoder)),
-        tkr.createStringOutput2(c -> c.outputModel3, FSerde.json(Model3.jsonSerde)),
-        tkr.createStringOutput2(c -> c.outputModel1, FSerde.json(Model1.jsonSerde)),
-        tkr.createStringOutput2(c -> c.outputModel2, FSerde.json(Model2.encoder, Model2.decoder))
-        );
+        tkr.createStringInput(c -> c.inputTopic0, FSerde.json(Model1.jsonSerde)),
+        tkr.createStringInput(c -> c.inputTopic1, FSerde.json(Model2.encoder, Model2.decoder)),
+        tkr.createStringOutput(c -> c.outputModel3, FSerde.json(Model3.jsonSerde)),
+        tkr.createStringOutput(c -> c.outputModel1, FSerde.json(Model1.jsonSerde)),
+        tkr.createStringOutput(c -> c.outputModel2, FSerde.json(Model2.encoder, Model2.decoder))
+    );
   }
 
   private TestKitEnv(
